@@ -2,8 +2,7 @@ name: sendgrid
 version: 0.1.0
 
 authors:
-  -  <>
-
+  - Dlani <dlanileonardo@gmail.com>
 
 crystal: 0.20.1
 
