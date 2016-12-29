@@ -3,12 +3,15 @@ require "json"
 module Sendgrid
   class Message
     property from : Address?
+    property reply_to : Address?
     property to : Array(Address)
     property subject : String?
     property content : Content?
+    property extra_fields : ExtraFields
 
     def initialize
       @to = Array(Sendgrid::Address).new
+      @extra_fields = ExtraFields.new
     end
 
     def to_json : String
@@ -16,8 +19,12 @@ module Sendgrid
         JSON::PrettyWriter.new(io, indent: "  ").json_object do |object|
           object.field :personalizations, personalizations_serialize
           object.field :from, address_serialize(from, "from")
+          object.field :reply_to, address_serialize(reply_to, "reply_to") if reply_to
           object.field :subject, subject
           object.field :content, content_serialize
+          extra_fields.each do |key, field|
+            object.field key, field
+          end
         end
       end
     end
