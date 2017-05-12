@@ -15,15 +15,24 @@ module Sendgrid
     end
 
     def to_json : String
-      result = String.build do |io|
-        JSON::PrettyWriter.new(io, indent: "  ").json_object do |object|
-          object.field :personalizations, personalizations_serialize
-          object.field :from, address_serialize(from, "from")
-          object.field :reply_to, address_serialize(reply_to, "reply_to") if reply_to
-          object.field :subject, subject
-          object.field :content, content_serialize
-          extra_fields.each do |key, field|
-            object.field key, field
+      result = JSON.build do |json|
+        json.object do
+          json.field :personalizations do
+            personalizations_serialize(json)
+          end
+
+          json.field :from do
+            address_serialize(json, from, "from")
+          end
+
+          json.field :reply_to do
+            address_serialize(json, reply_to, "reply_to")
+          end if reply_to
+
+          json.field :subject, subject
+
+          json.field :content, do
+            content_serialize(json)
           end
         end
       end
@@ -33,31 +42,39 @@ module Sendgrid
       to_json
     end
 
-    private def personalizations_serialize
-      [{
-        to: to.map do |address| 
-              address_serialize(address, "to")
+    private def personalizations_serialize(json)
+      json.array do
+        json.object do
+          json.field :to do
+            json.array do
+              to.map do |address|
+                address_serialize(json, address, "to")
+              end
             end
-      }]
+          end
+        end
+      end
     end
 
-    private def address_serialize(target, type : String)
+    private def address_serialize(json, target, type : String)
       if to_serialize = target
-        {
-          email: to_serialize.email,
-          name: to_serialize.name
-        }
+        json.object do
+          json.field :email, to_serialize.email
+          json.field :name, to_serialize.name
+        end
       else
         raise MessageException.new("Invalid #{type} address")
       end
     end
 
-    private def content_serialize
+    private def content_serialize(json)
       if to_serialize = content
-        [{
-          type: to_serialize.type,
-          value: to_serialize.body
-        }]
+        json.array do
+          json.object do
+            json.field :type, to_serialize.type
+            json.field :value, to_serialize.body
+          end
+        end
       else
         raise MessageException.new("Invalid content")
       end
