@@ -2,7 +2,7 @@
 
 Simple lib to send mail using Sendgrid in Crystal-Lang
 
-[![Build Status](https://travis-ci.org/dlanileonardo/sendgrid.cr.svg?branch=master)](https://travis-ci.org/dlanileonardo/sendgrid.cr)
+![CI](https://github.com/dlanileonardo/sendgrid.cr/workflows/CI/badge.svg)
 
 ## Installation
 

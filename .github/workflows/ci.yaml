@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 7 * * 1'
+
+jobs:
+  unit-test:
+    name: build and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Crystal
+        run: |
+          curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
+          sudo apt install crystal
+          crystal --version
+          shards --version
+      - run: shards install
+      - run: crystal build src/sendgrid.cr
+      - run: crystal spec
